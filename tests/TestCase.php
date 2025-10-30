@@ -3,8 +3,8 @@
 namespace Naimul007A\LaravelBaseKit\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Orchestra\Testbench\TestCase as Orchestra;
 use Naimul007A\LaravelBaseKit\LaravelBaseKitServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {

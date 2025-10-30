@@ -2,9 +2,9 @@
 
 namespace Naimul007A\LaravelBaseKit;
 
+use Naimul007A\LaravelBaseKit\Commands\LaravelBaseKitCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Naimul007A\LaravelBaseKit\Commands\LaravelBaseKitCommand;
 
 class LaravelBaseKitServiceProvider extends PackageServiceProvider
 {
