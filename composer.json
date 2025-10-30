@@ -1,17 +1,17 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "naimul007a/laravel-base-kit",
+    "description": "This is my package laravel-base-kit",
     "keywords": [
-        ":vendor_name",
+        "Naimul007A",
         "laravel",
-        ":package_slug"
+        "laravel-base-kit"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/naimul007a/laravel-base-kit",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Naimul Islam",
+            "email": "mdnaimul2090@gmail.com",
             "role": "Developer"
         }
     ],
@@ -35,13 +35,13 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
+            "Naimul007A\\LaravelBaseKit\\": "src/",
+            "Naimul007A\\LaravelBaseKit\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
+            "Naimul007A\\LaravelBaseKit\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -63,10 +63,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "Naimul007A\\LaravelBaseKit\\LaravelBaseKitServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "LaravelBaseKit": "Naimul007A\\LaravelBaseKit\\Facades\\LaravelBaseKit"
             }
         }
     },
