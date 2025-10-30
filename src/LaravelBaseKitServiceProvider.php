@@ -1,12 +1,15 @@
 <?php
+
 namespace Naimul007A\LaravelBaseKit;
 
 use Naimul007A\LaravelBaseKit\Commands\LaravelBaseKitCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
-class LaravelBaseKitServiceProvider extends PackageServiceProvider {
-    public function configurePackage(Package $package): void {
+class LaravelBaseKitServiceProvider extends PackageServiceProvider
+{
+    public function configurePackage(Package $package): void
+    {
         /*
          * This class is a Package Service Provider
          *

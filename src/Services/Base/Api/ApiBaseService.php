@@ -1,14 +1,19 @@
 <?php
+
 namespace Naimul007A\LaravelBaseKit\Services\Base\Api;
+
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Naimul007A\LaravelBaseKit\Exception\ApiException;
 
-abstract class ApiBaseService {
+abstract class ApiBaseService
+{
     protected Model $model;
+
     protected array $searchable = [];
 
-    public function index(array $params = [], $withRelationships = [], $select = []): \Illuminate\Contracts\Pagination\LengthAwarePaginator {
+    public function index(array $params = [], $withRelationships = [], $select = []): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
         $query = $this->model::query();
         // Select specific columns if provided
         if (! empty($select)) {
@@ -20,8 +25,8 @@ abstract class ApiBaseService {
             $query->where(function (Builder $q) use ($search) {
                 foreach ($this->searchable as $column) {
                     if (str_contains($column, '.')) {
-                        $parts          = explode('.', $column);
-                        $relation       = array_shift($parts);
+                        $parts = explode('.', $column);
+                        $relation = array_shift($parts);
                         $relationColumn = implode('.', $parts);
                         $q->orWhereHas($relation, function (Builder $q) use ($search, $relationColumn) {
                             $q->where($relationColumn, 'LIKE', "%{$search}%");
@@ -39,8 +44,8 @@ abstract class ApiBaseService {
 
         // Pagination
         $perPage = $params['per_page'] ?? 10;
-        $page    = $params['page'] ?? 1;
-        //with relationships
+        $page = $params['page'] ?? 1;
+        // with relationships
         if (! empty($withRelationships)) {
             $query->with($withRelationships);
         }
@@ -49,9 +54,9 @@ abstract class ApiBaseService {
         } else {
             $query->orderBy('created_at', 'desc');
         }
-        if (isset($params["counts"]) && $params["counts"]) {
+        if (isset($params['counts']) && $params['counts']) {
             // Handle count-based filtering
-            foreach ($params["counts"] as $relation => $count) {
+            foreach ($params['counts'] as $relation => $count) {
                 if (is_array($count) && isset($count['min'])) {
                     // Filter by minimum count of related models
                     $query->has($relation, '>=', $count['min']);
@@ -72,11 +77,13 @@ abstract class ApiBaseService {
                 }
             }
         }
+
         return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
-// Show single resource
-    public function show($id, array $with = [], array $select = []) {
+    // Show single resource
+    public function show($id, array $with = [], array $select = [])
+    {
         $query = $this->model::query();
         // Select specific columns if provided
         if (! empty($select)) {
@@ -87,12 +94,15 @@ abstract class ApiBaseService {
         }
         $data = $query->find($id);
         if (empty($data)) {
-            throw new ApiException("Resource not found", 404);
+            throw new ApiException('Resource not found', 404);
         }
+
         return $data;
     }
-//show by slug
-    public function showBySlug($slug, array $with = [], array $select = []) {
+
+    // show by slug
+    public function showBySlug($slug, array $with = [], array $select = [])
+    {
         $query = $this->model::query();
         if (! empty($select)) {
             $query->select($select);
@@ -102,34 +112,41 @@ abstract class ApiBaseService {
         }
         $data = $query->where('slug', $slug)->first();
         if (empty($data)) {
-            throw new ApiException("Resource not found", 404);
+            throw new ApiException('Resource not found', 404);
         }
+
         return $data;
     }
 
-// Store new resource
-    public function store(array $data) {
+    // Store new resource
+    public function store(array $data)
+    {
         return $this->model::create($data);
     }
 
-// Update resource
-    public function update($id, array $data) {
+    // Update resource
+    public function update($id, array $data)
+    {
         $model = $this->model::findOrFail($id);
         $model->update($data);
+
         return $model;
     }
 
-// Delete resource
-    public function delete($id) {
+    // Delete resource
+    public function delete($id)
+    {
         $model = $this->model::find($id);
         if (! $model) {
-            throw new ApiException("Resource not found", 404);
+            throw new ApiException('Resource not found', 404);
         }
         $model->delete();
+
         return $model;
     }
 
-    protected function applyFilters(Builder $query, array $filters): void {
+    protected function applyFilters(Builder $query, array $filters): void
+    {
         // Handle direct date range filters (when from/to are at root level)
         if (isset($filters['from']) || isset($filters['to'])) {
             if (isset($filters['from'])) {
@@ -140,10 +157,10 @@ abstract class ApiBaseService {
             }
             unset($filters['from'], $filters['to']);
         }
-        //retive soft deletes items
-        if (isset($filters["status"]) && $filters["status"] === "trashed") {
+        // retive soft deletes items
+        if (isset($filters['status']) && $filters['status'] === 'trashed') {
             $query->onlyTrashed();
-            unset($filters["status"]);
+            unset($filters['status']);
         }
         foreach ($filters as $column => $value) {
             // Handle date range filters for specific columns
@@ -154,6 +171,7 @@ abstract class ApiBaseService {
                 if (isset($value['to'])) {
                     $query->whereDate($column, '<=', $this->formatDate($value['to']));
                 }
+
                 continue;
             }
             // Handle OR groups (special key 'or')
@@ -176,15 +194,16 @@ abstract class ApiBaseService {
         }
     }
 
-/**
- * Format date to YYYY-MM-DD format
- * Supports multiple input formats:
- * - DD-MM-YYYY (01-01-2025)
- * - YYYY-MM-DD (2025-01-01)
- * - DD/MM/YYYY (01/01/2025)
- * - YYYY/MM/DD (2025/01/01)
- */
-    protected function formatDate(string $date): string {
+    /**
+     * Format date to YYYY-MM-DD format
+     * Supports multiple input formats:
+     * - DD-MM-YYYY (01-01-2025)
+     * - YYYY-MM-DD (2025-01-01)
+     * - DD/MM/YYYY (01/01/2025)
+     * - YYYY/MM/DD (2025/01/01)
+     */
+    protected function formatDate(string $date): string
+    {
         // If date is already in YYYY-MM-DD format, return as is
         if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
             return $date;
@@ -197,22 +216,23 @@ abstract class ApiBaseService {
         date_create_from_format('Y/m/d', $date);
 
         if (! $parsedDate) {
-            throw new ApiException("Invalid date format. Supported formats: DD-MM-YYYY, YYYY-MM-DD, DD/MM/YYYY, YYYY/MM/DD", 400);
+            throw new ApiException('Invalid date format. Supported formats: DD-MM-YYYY, YYYY-MM-DD, DD/MM/YYYY, YYYY/MM/DD', 400);
         }
 
         return $parsedDate->format('Y-m-d');
     }
 
-    protected function applyWhereCondition(Builder $query, $column, $value, $boolean = 'and'): void {
+    protected function applyWhereCondition(Builder $query, $column, $value, $boolean = 'and'): void
+    {
         // Handle nested OR groups (e.g., 'or:name')
         if (str_contains($column, 'or:')) {
-            $column  = str_replace('or:', '', $column);
+            $column = str_replace('or:', '', $column);
             $boolean = 'or';
         }
         $not = false;
         if (str_contains($column, 'not:')) {
             $column = str_replace('not:', '', $column);
-            $not    = true;
+            $not = true;
         }
 
         if (is_array($value)) {
@@ -230,14 +250,16 @@ abstract class ApiBaseService {
         }
         $query->$method($column, $value);
     }
-    protected function applyWhereHasCondition(Builder $query, $column, $value): void {
+
+    protected function applyWhereHasCondition(Builder $query, $column, $value): void
+    {
         $isNotRelation = str_starts_with($column, 'not:');
         if ($isNotRelation) {
             $column = substr($column, 4);
         }
 
-        $parts        = explode('.', $column);
-        $relation     = array_shift($parts);
+        $parts = explode('.', $column);
+        $relation = array_shift($parts);
         $nestedColumn = implode('.', $parts);
 
         $method = $isNotRelation ? 'whereDoesntHave' : 'whereHas';

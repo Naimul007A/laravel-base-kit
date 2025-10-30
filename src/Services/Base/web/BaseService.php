@@ -1,14 +1,17 @@
 <?php
+
 namespace Naimul007A\LaravelBaseKit\Services\Base\web;
 
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-class BaseService {
+class BaseService
+{
     public function __construct(protected Model $model, protected array $searchable = []) {}
 
-    public function index(array $params = [], $withRelationships = [], $select = []): \Illuminate\Contracts\Pagination\LengthAwarePaginator {
+    public function index(array $params = [], $withRelationships = [], $select = []): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
         $query = $this->model::query();
         // Select specific columns if provided
         if (! empty($select)) {
@@ -20,8 +23,8 @@ class BaseService {
             $query->where(function (Builder $q) use ($search) {
                 foreach ($this->searchable as $column) {
                     if (str_contains($column, '.')) {
-                        $parts          = explode('.', $column);
-                        $relation       = array_shift($parts);
+                        $parts = explode('.', $column);
+                        $relation = array_shift($parts);
                         $relationColumn = implode('.', $parts);
                         $q->orWhereHas($relation, function (Builder $q) use ($search, $relationColumn) {
                             $q->where($relationColumn, 'LIKE', "%{$search}%");
@@ -37,10 +40,10 @@ class BaseService {
             $this->applyFilters($query, $params['filters']);
         }
 
-                                           // Pagination
-        $perPage = $params['limit'] ?? 10; //default 10 items per page
-        $page    = $params['page'] ?? 1;   //default 1st page
-                                           //with relationships
+        // Pagination
+        $perPage = $params['limit'] ?? 10; // default 10 items per page
+        $page = $params['page'] ?? 1;   // default 1st page
+        // with relationships
         if (! empty($withRelationships)) {
             $query->with($withRelationships);
         }
@@ -49,9 +52,9 @@ class BaseService {
         } else {
             $query->orderBy('created_at', 'desc');
         }
-        if (isset($params["counts"]) && $params["counts"]) {
+        if (isset($params['counts']) && $params['counts']) {
             // Handle count-based filtering
-            foreach ($params["counts"] as $relation => $count) {
+            foreach ($params['counts'] as $relation => $count) {
                 if (is_array($count) && isset($count['min'])) {
                     // Filter by minimum count of related models
                     $query->has($relation, '>=', $count['min']);
@@ -72,32 +75,40 @@ class BaseService {
                 }
             }
         }
+
         return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
-    public function store(array $data): Model {
+    public function store(array $data): Model
+    {
         return $this->model->create($data);
     }
-    public function show($id, $withRelationships = []): Model {
+
+    public function show($id, $withRelationships = []): Model
+    {
         $query = $this->model->query();
         if (! empty($withRelationships)) {
             $query->with($withRelationships);
         }
+
         return $query->findOrFail($id);
     }
 
-    public function update(array $data, $id): Model {
+    public function update(array $data, $id): Model
+    {
         $model = $this->model->findOrFail($id);
         $model->update($data);
 
         return $model;
     }
 
-    public function destroy($id): void {
+    public function destroy($id): void
+    {
         $this->model->findOrFail($id)->delete();
     }
 
-    protected function applyFilters(Builder $query, array $filters): void {
+    protected function applyFilters(Builder $query, array $filters): void
+    {
         // Handle direct date range filters (when from/to are at root level)
         if (isset($filters['from']) || isset($filters['to'])) {
             if (isset($filters['from'])) {
@@ -108,10 +119,10 @@ class BaseService {
             }
             unset($filters['from'], $filters['to']);
         }
-        //retive soft deletes items
-        if (isset($filters["status"]) && $filters["status"] === "trashed") {
+        // retive soft deletes items
+        if (isset($filters['status']) && $filters['status'] === 'trashed') {
             $query->onlyTrashed();
-            unset($filters["status"]);
+            unset($filters['status']);
         }
         foreach ($filters as $column => $value) {
             // Handle date range filters for specific columns
@@ -122,6 +133,7 @@ class BaseService {
                 if (isset($value['to'])) {
                     $query->whereDate($column, '<=', $this->formatDate($value['to']));
                 }
+
                 continue;
             }
             // Handle OR groups (special key 'or')
@@ -152,7 +164,8 @@ class BaseService {
      * - DD/MM/YYYY (01/01/2025)
      * - YYYY/MM/DD (2025/01/01)
      */
-    protected function formatDate(string $date): string {
+    protected function formatDate(string $date): string
+    {
         // If date is already in YYYY-MM-DD format, return as is
         if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
             return $date;
@@ -165,22 +178,23 @@ class BaseService {
         date_create_from_format('Y/m/d', $date);
 
         if (! $parsedDate) {
-            throw new Exception("Invalid date format. Supported formats: DD-MM-YYYY, YYYY-MM-DD, DD/MM/YYYY, YYYY/MM/DD", 400);
+            throw new Exception('Invalid date format. Supported formats: DD-MM-YYYY, YYYY-MM-DD, DD/MM/YYYY, YYYY/MM/DD', 400);
         }
 
         return $parsedDate->format('Y-m-d');
     }
 
-    protected function applyWhereCondition(Builder $query, $column, $value, $boolean = 'and'): void {
+    protected function applyWhereCondition(Builder $query, $column, $value, $boolean = 'and'): void
+    {
         // Handle nested OR groups (e.g., 'or:name')
         if (str_contains($column, 'or:')) {
-            $column  = str_replace('or:', '', $column);
+            $column = str_replace('or:', '', $column);
             $boolean = 'or';
         }
         $not = false;
         if (str_contains($column, 'not:')) {
             $column = str_replace('not:', '', $column);
-            $not    = true;
+            $not = true;
         }
 
         if (is_array($value)) {
@@ -198,14 +212,16 @@ class BaseService {
         }
         $query->$method($column, $value);
     }
-    protected function applyWhereHasCondition(Builder $query, $column, $value): void {
+
+    protected function applyWhereHasCondition(Builder $query, $column, $value): void
+    {
         $isNotRelation = str_starts_with($column, 'not:');
         if ($isNotRelation) {
             $column = substr($column, 4);
         }
 
-        $parts        = explode('.', $column);
-        $relation     = array_shift($parts);
+        $parts = explode('.', $column);
+        $relation = array_shift($parts);
         $nestedColumn = implode('.', $parts);
 
         $method = $isNotRelation ? 'whereDoesntHave' : 'whereHas';
