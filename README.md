@@ -1,6 +1,6 @@
 # Laravel Base Kit
 
-A comprehensive base kit for Laravel applications providing a powerful `BaseService` for rapid API development.
+A comprehensive base kit for Laravel applications providing a powerful `BaseService` for rapid development.
 
 ## Installation
 
