@@ -1,9 +1,9 @@
 <?php
 namespace Naimul007A\LaravelBaseKit\Services\Base\Api;
 
-use App\Exceptions\ApiException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Naimul007A\LaravelBaseKit\Exceptions\ApiException;
 
 class BaseService {
     protected Model $model;
