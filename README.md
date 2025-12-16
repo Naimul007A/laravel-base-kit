@@ -14,7 +14,8 @@ composer require naimul007a/laravel-base-kit
 
 ### 1. Create a Service
 
-Create a service class that extends `Naimul007A\LaravelBaseKit\Services\Base\Api\BaseService`. You need to define the `$model` property and optionally the `$searchable` array for search functionality.
+Create a service class that extends `Naimul007A\LaravelBaseKit\Services\Base\Api\BaseService` OR
+`Naimul007A\LaravelBaseKit\Services\Base\Web\BaseService` . You need to define the `$model` property and optionally the `$searchable` array for search functionality.
 
 ```php
 <?php
@@ -22,6 +23,9 @@ Create a service class that extends `Naimul007A\LaravelBaseKit\Services\Base\Api
 namespace App\Services;
 
 use App\Models\User;
+//For Web Service
+//use Naimul007A\LaravelBaseKit\Services\Base\Web\BaseService;
+//For API Service
 use Naimul007A\LaravelBaseKit\Services\Base\Api\BaseService;
 
 class UserService extends BaseService
@@ -72,7 +76,7 @@ class UserController extends Controller
         $user = $this->userService->show($id, ['profile']);
         return response()->json($user);
     }
-    
+
     // GET /users/slug/{slug}
     public function showBySlug($slug)
     {
@@ -117,7 +121,7 @@ Retrieve a paginated, filtered, and sorted list of resources.
 ```php
 public function index(array $params = [], $withRelationships = [], $select = []): LengthAwarePaginator
 ```
-
+- **[`@Advanced Filtering`](#advanced-filtering)**: See the "Advanced Filtering" section below for details on how to use filtering options.
 -   **`$params`**: Request parameters (filters, sort, search, page, per_page).
 -   **`$withRelationships`**: Array of relationships to eager load.
 -   **`$select`**: Array of columns to select.
@@ -176,6 +180,44 @@ public function delete($id)
 ```
 
 -   **`$id`**: The primary key of the resource to delete.
+
+## Publishing Assets
+
+To customize or modify the package's default files, you can publish them to your application.
+
+### Main Installation Command
+
+This command will publish core requests and either API-specific or Web-specific services and exceptions, depending on the `--api` option.
+
+```bash
+php artisan base-kit:install
+```
+
+-   **`--api`**: Use this flag to publish API-specific request classes (e.g., `FilterRequest` to `app/Http/Requests/Api`), API exceptions, and API base services.
+    ```bash
+    php artisan base-kit:install --api
+    ```
+
+### Publishing Individual Components
+
+You can also publish specific parts of the package independently using `vendor:publish` with the following tags:
+
+-   **Requests**: Publishes `Http/Requests` (like `FilterRequest`) to `app/Http/Requests`.
+    ```bash
+    php artisan vendor:publish --tag=base-kit-requests
+    ```
+-   **API Exceptions**: Publishes `Exceptions` (like `ApiException`) to `app/Exceptions`.
+    ```bash
+    php artisan vendor:publish --tag=base-kit-exceptions-api
+    ```
+-   **Web Services**: Publishes `Services/Base/Web` to `app/Services/Base`.
+    ```bash
+    php artisan vendor:publish --tag=base-kit-services
+    ```
+-   **API Services**: Publishes `Services/Base/Api` (like `BaseService`) to `app/Services/Base`.
+    ```bash
+    php artisan vendor:publish --tag=base-kit-services-api
+    ```
 
 ## Advanced Filtering
 
