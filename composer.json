@@ -1,0 +1,36 @@
+{
+    "name": "naimul007a/laravel-base-kit",
+    "description": "A base kit for Laravel applications.",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "version": "1.0.0",
+    "autoload": {
+        "psr-4": {
+            "Naimul007A\\LaravelBaseKit\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Naimul Islam",
+            "email": "mdnaimul2090@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Naimul007A\\LaravelBaseKit\\LaravelBaseKitServiceProvider"
+            ],
+            "aliases": {
+                "LaravelBaseKit": "Naimul007A\\LaravelBaseKit\\Facades\\LaravelBaseKit"
+            }
+        }
+    },
+    "require-dev": {
+        "illuminate/support": "^12.42",
+        "illuminate/database": "^12.42",
+        "illuminate/contracts": "^12.42",
+        "illuminate/http": "^12.42"
+    }
+}
