@@ -37,7 +37,7 @@ class UserService extends BaseService
 
 ### 2. Use in Controller
 
-Inject your service into your controller and use the `index` method.
+Inject your service into your controller. Here is a full example demonstrating how to use all available methods.
 
 ```php
 <?php
@@ -46,6 +46,7 @@ namespace App\Http\Controllers;
 
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
@@ -56,33 +57,125 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
+    // GET /users
     public function index(Request $request)
     {
-        // The index method handles pagination, filtering, searching, and sorting automatically.
-        return $this->userService->index($request->all());
+        // Handles pagination, filtering, searching, and sorting
+        $users = $this->userService->index($request->all(), ['profile']);
+        return response()->json($users);
+    }
+
+    // GET /users/{id}
+    public function show($id)
+    {
+        // Fetch a single user with relationships
+        $user = $this->userService->show($id, ['profile']);
+        return response()->json($user);
+    }
+    
+    // GET /users/slug/{slug}
+    public function showBySlug($slug)
+    {
+        // Fetch a user by slug
+        $user = $this->userService->showBySlug($slug, ['profile']);
+        return response()->json($user);
+    }
+
+    // POST /users
+    public function store(Request $request)
+    {
+        // Validate request...
+        $user = $this->userService->store($request->all());
+        return response()->json($user, 201);
+    }
+
+    // PUT/PATCH /users/{id}
+    public function update(Request $request, $id)
+    {
+        // Validate request...
+        $user = $this->userService->update($id, $request->all());
+        return response()->json($user);
+    }
+
+    // DELETE /users/{id}
+    public function destroy($id)
+    {
+        $this->userService->delete($id);
+        return response()->json(['message' => 'User deleted successfully']);
     }
 }
 ```
 
-## BaseService `index` Method
+## Service Methods
 
-The `index` method is the core of this package, providing a standardized way to retrieve paginated, filtered, and sorted data.
+The `BaseService` provides several standardized methods to handle common API operations.
+
+### `index`
+
+Retrieve a paginated, filtered, and sorted list of resources.
 
 ```php
 public function index(array $params = [], $withRelationships = [], $select = []): LengthAwarePaginator
 ```
 
-### Parameters
+-   **`$params`**: Request parameters (filters, sort, search, page, per_page).
+-   **`$withRelationships`**: Array of relationships to eager load.
+-   **`$select`**: Array of columns to select.
 
--   **`$params`**: An array of parameters (typically `$request->all()`).
-    -   `search` (string): Search term applied to columns defined in `$searchable`. Supports dot notation for relationships (e.g., `relation.column`).
-    -   `per_page` (int): Items per page (default: 10).
-    -   `page` (int): Current page number (default: 1).
-    -   `sort` (array): `['key' => 'column_name', 'value' => 'asc|desc']`. Default is `created_at` `desc`.
-    -   `filters` (array): A complex array for advanced filtering (see below).
-    -   `counts` (array): Filter by related model counts (e.g., `['posts' => ['min' => 5]]`).
--   **`$withRelationships`**: An array of relationships to eager load (e.g., `['posts', 'profile']`).
--   **`$select`**: An array of specific columns to select.
+### `show`
+
+Find a specific resource by its primary key (ID). Throws an exception if not found.
+
+```php
+public function show($id, array $with = [], array $select = [])
+```
+
+-   **`$id`**: The primary key of the resource.
+-   **`$with`**: Array of relationships to eager load.
+-   **`$select`**: Array of columns to select.
+
+### `showBySlug`
+
+Find a specific resource by its `slug` column. Throws an exception if not found.
+
+```php
+public function showBySlug($slug, array $with = [], array $select = [])
+```
+
+-   **`$slug`**: The slug value to search for.
+-   **`$with`**: Array of relationships to eager load.
+-   **`$select`**: Array of columns to select.
+
+### `store`
+
+Create a new resource.
+
+```php
+public function store(array $data)
+```
+
+-   **`$data`**: Associative array of data to create the model with.
+
+### `update`
+
+Update an existing resource. Throws an exception if the resource is not found.
+
+```php
+public function update($id, array $data)
+```
+
+-   **`$id`**: The primary key of the resource to update.
+-   **`$data`**: Associative array of data to update.
+
+### `delete`
+
+Delete a resource. Throws an exception if the resource is not found.
+
+```php
+public function delete($id)
+```
+
+-   **`$id`**: The primary key of the resource to delete.
 
 ## Advanced Filtering
 
